@@ -1,4 +1,4 @@
-﻿module Framework
+﻿module Bar
 open System
 open System.Collections.Generic
 open System.Reflection
@@ -21,19 +21,19 @@ let getParameters (queryString:string) =
     queryString.Split '&'
     |> Seq.map (fun x -> ((x.Split '=').[0], (x.Split '=').[1]))
 
-let applyparameters app (methodInfo:MethodInfo) (parameters:seq<string * string>) =
+let applyParameters app (methodInfo:MethodInfo) (parameters:seq<string * string>) =
     let paras =
         methodInfo.GetParameters()
         |> Seq.map (fun x -> parameters
                              |> Seq.find (fun (name,_)-> name = x.Name)
-                             |> (fun (y,z) -> (y,z,x.ParameterType)))
-        |> Seq.map (fun (_, value, valueType) -> JsonConvert.DeserializeObject(value, valueType))
+                             |> (fun (_,z) -> (z,x.ParameterType)))
+        |> Seq.map (fun (value, valueType) -> JsonConvert.DeserializeObject(value, valueType))
         |> Seq.toArray
     methodInfo.Invoke(app, paras)
 
-let myFramework app next (enviroment:IDictionary<string,Object>) =
+let useBar app next (enviroment:IDictionary<string,Object>) =
     let response =
         getMethod app (enviroment.["owin.RequestMethod"] :?> string) (enviroment.["owin.RequestPath"] :?> string)
-        |> applyparameters app
-    enviroment.Add("owin.RawResponse", response(getParameters(enviroment.["owin.RequestQueryString"] :?> string)))
+        |> applyParameters app
+    enviroment.Add("bar.RawResponse", response (getParameters(enviroment.["owin.RequestQueryString"] :?> string)))
     Task.Run (fun () -> next enviroment)

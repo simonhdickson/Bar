@@ -8,9 +8,9 @@
     <ProjectGuid>def55674-3854-4a23-9f10-ef7fd009cd04</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>OwinFrankExample</RootNamespace>
-    <AssemblyName>OwinFrankExample</AssemblyName>
+    <AssemblyName>BarPrototype</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>OwinFrankExample</Name>
+    <Name>BarPrototype</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\OwinFrankExample.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\BarPrototype.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

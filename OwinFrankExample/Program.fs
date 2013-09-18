@@ -1,4 +1,4 @@
-﻿namespace OwinFrankExample
+﻿namespace BarExample
 open System
 open Microsoft.Owin.Hosting
 open Owin
@@ -11,7 +11,7 @@ module Program =
             "Thanks!"
         member x.``GET /talk`` name =
             "Hello " + name
-        member x.``GET /square`` (number:decimal) =
+        member x.``GET /square`` number =
             number * number
         member x.``POST /talk`` name =
             "Thanks " + name + "!"
@@ -20,8 +20,8 @@ module Program =
 
     type Startup() =
         member x.Configuration(app: IAppBuilder) =
-            app.Use(fun next -> Framework.myFramework (MyApp()) (Func2 next))
-               .Use(fun next -> PlainResponse.plainResponse)
+            app.Use(fun next -> Bar.useBar (MyApp()) (Func2 next))
+               .Use(fun next -> Bar.PlainResponse.plainResponse)
             |> ignore
 
     [<EntryPoint>]
