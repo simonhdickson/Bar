@@ -27,7 +27,10 @@ let applyParameters app (methodInfo:MethodInfo) (parameters:seq<string * string>
         |> Seq.map (fun x -> parameters
                              |> Seq.find (fun (name,_)-> name = x.Name)
                              |> (fun (_,z) -> (z,x.ParameterType)))
-        |> Seq.map (fun (value, valueType) -> JsonConvert.DeserializeObject(value, valueType))
+        |> Seq.map (fun (value, valueType) ->
+                             match valueType with
+                             | t when t = typeof<string> -> value :> obj
+                             | _ -> JsonConvert.DeserializeObject(value, valueType))
         |> Seq.toArray
     methodInfo.Invoke(app, paras)
 
