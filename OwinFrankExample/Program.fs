@@ -1,7 +1,7 @@
 ﻿namespace OwinFrankExample
 open System
-open Owin
 open Microsoft.Owin.Hosting
+open Owin
 
 module Program =
     type MyApp() =
@@ -11,12 +11,17 @@ module Program =
             "Thanks!"
         member x.``GET /talk`` name =
             "Hello " + name
+        member x.``GET /square`` (number:decimal) =
+            number * number
         member x.``POST /talk`` name =
             "Thanks " + name + "!"
 
+    let Func2 (x:Func<'a,'b>) y = x.Invoke(y)
+
     type Startup() =
         member x.Configuration(app: IAppBuilder) =
-            app.Use(fun next -> Framework.myFramework(MyApp()))
+            app.Use(fun next -> Framework.myFramework (MyApp()) (Func2 next))
+               .Use(fun next -> PlainResponse.plainResponse)
             |> ignore
 
     [<EntryPoint>]

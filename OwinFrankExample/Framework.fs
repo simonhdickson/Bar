@@ -1,10 +1,9 @@
 ﻿module Framework
 open System
-open System.IO
 open System.Collections.Generic
-open System.Threading.Tasks
-open System.Text
 open System.Reflection
+open System.Threading.Tasks
+open Newtonsoft.Json
 open Owin
 
 let getMethods app verb =
@@ -13,11 +12,10 @@ let getMethods app verb =
     |> Seq.map (fun x -> (x.Name.Replace(verb + " ", ""), x))
 
 let getMethod app verb requestPath =
-    let (_,response) =
-        getMethods app verb
-        |> Seq.where (fun (path, _) -> path = requestPath)
-        |> Seq.head
-    response
+    getMethods app verb
+    |> Seq.where (fun (path, _) -> path = requestPath)
+    |> Seq.map (fun (_,response) -> response)
+    |> Seq.head
 
 let getParameters (queryString:string) =
     queryString.Split '&'
@@ -26,18 +24,16 @@ let getParameters (queryString:string) =
 let applyparameters app (methodInfo:MethodInfo) (parameters:seq<string * string>) =
     let paras =
         methodInfo.GetParameters()
-        |> Seq.map (fun x -> parameters |> Seq.find(fun (name,_)-> name=x.Name))
-        |> Seq.map (fun (_,value) -> value :> obj)
+        |> Seq.map (fun x -> parameters
+                             |> Seq.find (fun (name,_)-> name = x.Name)
+                             |> (fun (y,z) -> (y,z,x.ParameterType)))
+        |> Seq.map (fun (_, value, valueType) -> JsonConvert.DeserializeObject(value, valueType))
         |> Seq.toArray
-    methodInfo.Invoke(app,paras).ToString()
+    methodInfo.Invoke(app, paras)
 
-let myFramework app (enviroment:IDictionary<string,Object>) =
+let myFramework app next (enviroment:IDictionary<string,Object>) =
     let response =
         getMethod app (enviroment.["owin.RequestMethod"] :?> string) (enviroment.["owin.RequestPath"] :?> string)
-        |> applyparameters app 
-    let responseBytes = ASCIIEncoding.UTF8.GetBytes(response(getParameters(enviroment.["owin.RequestQueryString"] :?> string)))
-    let responseStream = enviroment.["owin.ResponseBody"] :?> Stream
-    let responseHeaders = enviroment.["owin.ResponseHeaders"] :?> IDictionary<string, string[]>
-    responseHeaders.Add("Content-Length", [|responseBytes.Length.ToString()|])
-    responseHeaders.Add("Content-Type", [|"text/plain"|])
-    responseStream.AsyncWrite(responseBytes, 0, responseBytes.Length) |> Async.StartAsTask :> Task
+        |> applyparameters app
+    enviroment.Add("owin.RawResponse", response(getParameters(enviroment.["owin.RequestQueryString"] :?> string)))
+    Task.Run (fun () -> next enviroment)

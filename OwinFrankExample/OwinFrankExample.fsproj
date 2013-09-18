@@ -93,6 +93,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <Compile Include="PlainResponse.fs" />
     <Compile Include="Framework.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
