@@ -1,4 +1,4 @@
-﻿module Bar.PlainResponse
+﻿module PlainResponse
 open System
 open System.Collections.Generic
 open System.IO

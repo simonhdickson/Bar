@@ -21,7 +21,7 @@ module Program =
     type Startup() =
         member x.Configuration(app: IAppBuilder) =
             app.Use(fun next -> Bar.useBar (MyApp()) (Func2 next))
-               .Use(fun next -> Bar.PlainResponse.plainResponse)
+               .Use(fun next -> PlainResponse.plainResponse)
             |> ignore
 
     [<EntryPoint>]

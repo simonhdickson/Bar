@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BarPrototype", "OwinFrankExample\BarPrototype.fsproj", "{DEF55674-3854-4A23-9F10-EF7FD009CD04}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BarPrototype", "Bar\BarPrototype.fsproj", "{DEF55674-3854-4A23-9F10-EF7FD009CD04}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
