@@ -11,17 +11,17 @@ module Program =
             "Thanks!"
         member x.``GET /talk`` name =
             "Hello " + name
-        member x.``GET /square`` number =
-            number * number
         member x.``POST /talk`` name =
             "Thanks " + name + "!"
+        member x.``GET /square`` number =
+            number * number
 
-    let Func2 (x:Func<'a,'b>) y = x.Invoke(y)
+    let Func2 (x:Func<_,_>) y = x.Invoke(y)
 
     type Startup() =
         member x.Configuration(app: IAppBuilder) =
             app.Use(fun next -> Bar.useBar (MyApp()) (Func2 next))
-               .Use(fun next -> PlainResponse.plainResponse)
+               .Use(fun next -> Components.plainResponse)
             |> ignore
 
     [<EntryPoint>]

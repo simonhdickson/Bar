@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Compile Include="PlainResponse.fs" />
+    <Compile Include="Components.fs" />
     <Compile Include="Framework.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />
