@@ -6,8 +6,6 @@ open System.Reflection
 open System.Threading.Tasks
 open Owin
 
-let (<<) f g x = f(g x)
-
 let getMethods verb (methods:seq<MethodInfo>) =
     methods
     |> Seq.where (fun x -> x.Name.StartsWith(verb + " /"))
@@ -35,6 +33,8 @@ let invokeMethod instance parseParameter (methodInfo:MethodInfo) =
         |> Seq.toArray
     methodInfo.Invoke(instance, parameters)
 
+let (<<) f g x = f(g x)
+
 let useBar instance next (converter:string*Type->obj) (enviroment:IDictionary<string,obj>) =
     let requestMethod = enviroment.["owin.RequestMethod"] :?> string
     let requestPath = enviroment.["owin.RequestPath"] :?> string
@@ -52,3 +52,9 @@ let useBar instance next (converter:string*Type->obj) (enviroment:IDictionary<st
         |> invokeMethod instance parseParameter
     enviroment.Add("bar.RawResponse", response)
     Task.Run (fun () -> next enviroment)
+    
+let Func2 (x:Func<_,_>) y = x.Invoke(y)
+
+type IAppBuilder with
+    member x.UseBar (instance, converter) =
+        x.Use(fun next -> useBar instance (Func2 next) converter)

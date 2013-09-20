@@ -1,6 +1,7 @@
 ﻿namespace BarExample
 open System
 open Microsoft.Owin.Hosting
+open Bar
 open Owin
 
 module Program =
@@ -10,17 +11,15 @@ module Program =
         member x.``POST /`` () =
             "Thanks!"
         member x.``POST /cheese`` name body =
-            body + " is tasty, " + name + "!"
+            "Thanks, " + body + " is tasty " + name + "!"
         member x.``GET /talk`` name =
             "Hello " + name
         member x.``GET /square`` (number:decimal) =
             number * number
 
-    let Func2 (x:Func<_,_>) y = x.Invoke(y)
-
     type Startup() =
         member x.Configuration(app: IAppBuilder) =
-            app.Use(fun next -> Bar.useBar (MyApp()) (Func2 next) Components.simpleTypeConverter)
+            app.UseBar(MyApp(), Components.simpleTypeConverter)
                .Use(fun next -> Components.plainResponse)
             |> ignore
 
