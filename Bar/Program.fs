@@ -3,6 +3,7 @@ open System
 open Microsoft.Owin.Hosting
 open Bar
 open Owin
+open Components
 
 module Program =
     type MyApp() =
@@ -14,13 +15,13 @@ module Program =
             "Thanks, " + body + " is tasty " + name + "!"
         member x.``GET /talk`` name =
             "Hello " + name
-        member x.``GET /square`` (number:decimal) =
+        member x.``GET /square`` number =
             number * number
 
     type Startup() =
         member x.Configuration(app: IAppBuilder) =
             app.UseBar(MyApp(), Components.simpleTypeConverter)
-               .Use(fun next -> Components.plainResponse)
+               .PlainResponse()
             |> ignore
 
     [<EntryPoint>]

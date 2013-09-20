@@ -72,8 +72,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <Compile Include="Components.fs" />
     <Compile Include="Framework.fs" />
+    <Compile Include="Components.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />
   </ItemGroup>
