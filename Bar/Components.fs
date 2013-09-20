@@ -2,8 +2,10 @@
 open System
 open System.Collections.Generic
 open System.IO
+open System.Reflection
 open System.Text
 open System.Threading.Tasks
+open Newtonsoft.Json
 open Owin
 
 let plainResponse (enviroment:IDictionary<string,Object>) =
@@ -14,3 +16,8 @@ let plainResponse (enviroment:IDictionary<string,Object>) =
     responseHeaders.Add("Content-Length", [|responseBytes.Length.ToString()|])
     responseHeaders.Add("Content-Type", [|"text/plain"|])
     responseStream.AsyncWrite(responseBytes, 0, responseBytes.Length) |> Async.StartAsTask :> Task
+    
+let simpleTypeConverter input =
+    match input with
+    | (value, valueType) when valueType = typeof<string> -> value :> obj
+    | (value, valueType) -> JsonConvert.DeserializeObject(value, valueType)

@@ -1,15 +1,15 @@
 ﻿module Bar
 open System
+open System.IO
 open System.Collections.Generic
 open System.Reflection
 open System.Threading.Tasks
-open Newtonsoft.Json
 open Owin
 
 let (<<) f g x = f(g x)
 
-let getMethods (appType:Type) verb =
-    appType.GetMethods()
+let getMethods verb (methods:seq<MethodInfo>) =
+    methods
     |> Seq.where (fun x -> x.Name.StartsWith(verb + " /"))
     |> Seq.map (fun x -> (x.Name.Replace(verb + " ", ""), x))
 
@@ -19,39 +19,36 @@ let getMethod requestPath methods =
     |> Seq.map (fun (_,response) -> response)
     |> Seq.head
 
-let parseParameters (queryString:string) =
+let parseQueryString (queryString:string) =
     queryString.Split '&'
     |> Seq.map (fun x -> ((x.Split '=').[0], (x.Split '=').[1]))
 
-let parseParameter parameters (x:ParameterInfo) =
+let getParameter parameters (x:ParameterInfo) =
     parameters
     |> Seq.find (fun (name,_)-> name = x.Name)
     |> (fun (_,z) -> (z, x.ParameterType))
 
-let typeConverter input =
-    match input with
-    | (value, valueType) when valueType = typeof<string> -> value :> obj
-    | (value, valueType) -> JsonConvert.DeserializeObject(value, valueType)
-
-let applyParameters instance getParameter (methodInfo:MethodInfo) =
-    let paras =
+let invokeMethod instance parseParameter (methodInfo:MethodInfo) =
+    let parameters =
         methodInfo.GetParameters()
-        |> Seq.map getParameter
+        |> Seq.map parseParameter
         |> Seq.toArray
-    methodInfo.Invoke(instance, paras)
+    methodInfo.Invoke(instance, parameters)
 
-let useBar instance next (enviroment:IDictionary<string,obj>) =
-    let appType = instance.GetType()
+let useBar instance next (converter:string*Type->obj) (enviroment:IDictionary<string,obj>) =
     let requestMethod = enviroment.["owin.RequestMethod"] :?> string
     let requestPath = enviroment.["owin.RequestPath"] :?> string
     let queryString = enviroment.["owin.RequestQueryString"] :?> string
-    let getParameter =
-        parseParameters queryString
-        |> parseParameter
-        |> (fun x -> typeConverter << x)
+    let requestBody = (new StreamReader (enviroment.["owin.RequestBody"] :?> Stream)).ReadToEnd()
+    let parseParameter =
+        parseQueryString queryString
+        |> Seq.append [("body", requestBody)]
+        |> getParameter
+        |> (fun x -> converter << x)
     let response =
-        getMethods appType requestMethod
+        instance.GetType().GetMethods()
+        |> getMethods requestMethod
         |> getMethod requestPath
-        |> applyParameters instance getParameter
+        |> invokeMethod instance parseParameter
     enviroment.Add("bar.RawResponse", response)
     Task.Run (fun () -> next enviroment)
